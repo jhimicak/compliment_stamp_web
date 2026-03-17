@@ -3,6 +3,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Stamp, Coupon, EventConfig
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super-secret-compliment-key-123'
@@ -124,7 +125,65 @@ def admin_dashboard():
             'coupons': coupons_count
         })
         
-    return render_template('admin_dashboard.html', user_stats=user_stats, event_config=event_config)
+    recent_used_coupons = Coupon.query.filter_by(is_used=True).order_by(Coupon.used_at.desc()).limit(10).all()
+        
+    return render_template('admin_dashboard.html', user_stats=user_stats, event_config=event_config, recent_used_coupons=recent_used_coupons)
+
+@app.route('/admin/user/<int:user_id>')
+@login_required
+def admin_user_detail(user_id):
+    if not current_user.is_admin:
+        return redirect(url_for('user_dashboard'))
+        
+    target_user = User.query.get_or_404(user_id)
+    stamps = Stamp.query.filter_by(user_id=user_id).order_by(Stamp.granted_at.desc()).all()
+    coupons = Coupon.query.filter_by(user_id=user_id).order_by(Coupon.granted_at.desc()).all()
+    
+    return render_template('admin_user_detail.html', target_user=target_user, stamps=stamps, coupons=coupons)
+
+@app.route('/delete_stamp/<int:stamp_id>', methods=['POST'])
+@login_required
+def delete_stamp(stamp_id):
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+        
+    stamp = Stamp.query.get_or_404(stamp_id)
+    target_user_id = stamp.user_id
+    db.session.delete(stamp)
+    db.session.commit()
+    flash('스탬프가 삭제되었습니다.', 'success')
+    return redirect(url_for('admin_user_detail', user_id=target_user_id))
+
+@app.route('/delete_coupon/<int:coupon_id>', methods=['POST'])
+@login_required
+def delete_coupon(coupon_id):
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+        
+    coupon = Coupon.query.get_or_404(coupon_id)
+    target_user_id = coupon.user_id
+    db.session.delete(coupon)
+    db.session.commit()
+    flash('쿠폰이 삭제되었습니다.', 'success')
+    return redirect(url_for('admin_user_detail', user_id=target_user_id))
+
+@app.route('/use_coupon/<int:coupon_id>', methods=['POST'])
+@login_required
+def use_coupon(coupon_id):
+    coupon = Coupon.query.get_or_404(coupon_id)
+    if coupon.user_id != current_user.id:
+        flash('자신의 쿠폰만 사용할 수 있습니다.', 'error')
+        return redirect(url_for('user_dashboard'))
+        
+    if coupon.is_used:
+        flash('이미 사용된 쿠폰입니다.', 'error')
+        return redirect(url_for('user_dashboard'))
+        
+    coupon.is_used = True
+    coupon.used_at = datetime.utcnow()
+    db.session.commit()
+    flash('쿠폰을 성공적으로 사용했습니다!', 'success')
+    return redirect(url_for('user_dashboard'))
 
 @app.route('/grant_stamp/<int:user_id>', methods=['POST'])
 @login_required

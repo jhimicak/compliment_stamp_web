@@ -5,6 +5,20 @@
     <h1 class="dashboard-title">관리자 대시보드 👑</h1>
 </div>
 
+{% if recent_used_coupons %}
+<div class="glass-card" style="margin-bottom: 2rem; border-left: 4px solid #ff9f43; background: rgba(255, 159, 67, 0.1);">
+    <h3 style="color: #e67e22; margin-bottom: 1rem;">🔔 최근 쿠폰 사용 알림</h3>
+    <ul style="list-style-type: none; padding: 0; margin: 0;">
+        {% for coupon in recent_used_coupons %}
+        <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <strong>{{ coupon.owner.name }}</strong>님이 <strong>{{ coupon.reason }}</strong> 쿠폰을 사용했습니다! 
+            <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">({{ coupon.used_at.strftime('%Y-%m-%d %H:%M') }})</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 <div class="admin-grid">
     <!-- User List Section -->
     <div class="glass-card" style="grid-column: 1 / -1;">
@@ -23,6 +37,7 @@
                     <div style="display: flex; gap: 0.5rem;">
                         <button class="btn btn-primary" onclick="openStampModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem;">칭찬 도장 부여</button>
                         <button class="btn btn-success" onclick="openCouponModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem;">특별 쿠폰 부여</button>
+                        <a href="{{ url_for('admin_user_detail', user_id=item.user.id) }}" class="btn btn-outline" style="padding: 0.5rem 1rem; text-decoration: none;">상세 보기</a>
                     </div>
                 </div>
             {% else %}

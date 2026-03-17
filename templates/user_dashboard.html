@@ -41,6 +41,15 @@
                 <div class="coupon-content">
                     <div class="coupon-title">{{ coupon.reason }}</div>
                     <div class="coupon-date">발급일: {{ coupon.granted_at.strftime('%Y-%m-%d') }}</div>
+                    {% if coupon.is_used %}
+                        <div style="margin-top: 1rem; color: #ff4d4d; font-weight: bold;">
+                            사용 완료 ({{ coupon.used_at.strftime('%Y-%m-%d %H:%M') }})
+                        </div>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('use_coupon', coupon_id=coupon.id) }}" style="margin-top: 1rem;" onsubmit="return confirm('정말 이 쿠폰을 사용하시겠습니까? 한 번 사용하면 되돌릴 수 없습니다.');">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">지금 사용하기</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

@@ -28,6 +28,7 @@ class Coupon(db.Model):
     granted_at = db.Column(db.DateTime, default=datetime.utcnow)
     reason = db.Column(db.String(200), nullable=False)
     is_used = db.Column(db.Boolean, default=False)
+    used_at = db.Column(db.DateTime, nullable=True)
 
 class EventConfig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
