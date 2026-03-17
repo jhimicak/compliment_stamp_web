@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">내 칭찬 도장판 🌸</h1>
+    <div style="text-align: right;">
+        <p style="color: var(--text-muted);">총 모은 도장: <strong style="font-size: 1.5rem; color: var(--primary);">{{ stamps|length }}</strong> 개</p>
+        <p style="font-size: 0.9rem;">(쿠폰 발급까지 <strong>{{ required - (stamps|length % required) }}</strong>개 남았어요!)</p>
+    </div>
+</div>
+
+<div class="glass-card" style="margin-bottom: 2rem; border: 2px solid var(--primary-light);">
+    <h3 style="color: var(--primary); margin-bottom: 1rem;">진행중인 스탬프 판 ({{ stamps|length // required + 1 }}판째)</h3>
+    <div class="stamp-board">
+        {% set current_stamps = stamps|length % required %}
+        {% for i in range(required) %}
+            <div class="stamp-slot {% if i < current_stamps %}filled{% endif %}" 
+                 {% if i < current_stamps %}
+                    {% set stamp = stamps[stamps|length - current_stamps + i] %}
+                    data-message="{{ stamp.message }} ({{ stamp.granted_at.strftime('%Y-%m-%d') }})"
+                 {% endif %}>
+                
+                {% if i < current_stamps %}
+                    <img src="{{ url_for('static', filename='images/stamp.png') }}" class="stamp-img" alt="도장">
+                {% else %}
+                    <span style="color: var(--secondary); font-weight: bold; font-size: 1.5rem;">{{ i + 1 }}</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="dashboard-header" style="margin-top: 3rem;">
+    <h2 class="dashboard-title">내 쿠폰함 🎁</h2>
+</div>
+
+{% if coupons %}
+    <div class="coupon-list">
+        {% for coupon in coupons %}
+            <div class="coupon-card">
+                <div class="coupon-content">
+                    <div class="coupon-title">{{ coupon.reason }}</div>
+                    <div class="coupon-date">발급일: {{ coupon.granted_at.strftime('%Y-%m-%d') }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="glass-card" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p style="font-size: 1.2rem;">아직 발급받은 쿠폰이 없어요!</p>
+        <p>칭찬 도장을 열심히 모아서 귀여운 쿠폰을 받아보세요 🪄</p>
+    </div>
+{% endif %}
+
+{% endblock %}

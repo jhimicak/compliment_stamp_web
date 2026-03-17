@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">관리자 대시보드 👑</h1>
+</div>
+
+<div class="admin-grid">
+    <!-- User List Section -->
+    <div class="glass-card" style="grid-column: 1 / -1;">
+        <h3 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            사용자 관리
+            <button class="btn btn-outline" onclick="openModal('eventModal')" style="font-size: 0.9rem; padding: 0.5rem 1rem;">자동발급 이벤트 설정</button>
+        </h3>
+        
+        <div style="background: rgba(255,255,255,0.7); border-radius: 16px; padding: 1rem;">
+            {% for item in user_stats %}
+                <div class="user-list-item">
+                    <div class="user-info">
+                        <h4>{{ item.user.name }} ({{ item.user.username }})</h4>
+                        <p>도장 {{ item.stamps }}개 / 쿠폰 {{ item.coupons }}장</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary" onclick="openStampModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem;">칭찬 도장 부여</button>
+                        <button class="btn btn-success" onclick="openCouponModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem;">특별 쿠폰 부여</button>
+                    </div>
+                </div>
+            {% else %}
+                <p style="text-align: center; padding: 2rem; color: var(--text-muted);">아직 가입한 사용자가 없습니다.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Stamp Modal -->
+<div class="modal" id="stampModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('stampModal')">&times;</button>
+        <h3 style="color: var(--primary); margin-bottom: 1.5rem;"><span id="stampUserName"></span>님에게 칭찬 도장 찍기 🌸</h3>
+        <form id="stampForm" method="POST" action="">
+            <div class="form-group">
+                <label for="message">칭찬 메시지 (선택)</label>
+                <input type="text" id="message" name="message" class="form-control" placeholder="참 잘했어요!" value="참 잘했어요!">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">도장 쾅! 찍기</button>
+        </form>
+    </div>
+</div>
+
+<!-- Coupon Modal -->
+<div class="modal" id="couponModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('couponModal')">&times;</button>
+        <h3 style="color: #52b788; margin-bottom: 1.5rem;"><span id="couponUserName"></span>님에게 특별 쿠폰 발급 🎁</h3>
+        <form id="couponForm" method="POST" action="">
+            <div class="form-group">
+                <label for="reason">발급 사유 (쿠폰 타이틀)</label>
+                <input type="text" id="reason" name="reason" class="form-control" required placeholder="예: 생일 축하 특별 쿠폰!">
+            </div>
+            <button type="submit" class="btn btn-success" style="width: 100%;">쿠폰 발급하기</button>
+        </form>
+    </div>
+</div>
+
+<!-- Event Config Modal -->
+<div class="modal" id="eventModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('eventModal')">&times;</button>
+        <h3 style="color: var(--primary); margin-bottom: 1.5rem;">자동 쿠폰 이벤트 설정 ⚙️</h3>
+        <form method="POST" action="{{ url_for('update_event') }}">
+            <div class="form-group">
+                <label for="required_stamps">쿠폰 자동 발급 기준 (현재: {{ event_config.stamps_required_for_coupon if event_config else 10 }}개)</label>
+                <input type="number" id="required_stamps" name="required_stamps" class="form-control" required min="1" value="{{ event_config.stamps_required_for_coupon if event_config else 10 }}">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">도장을 설정한 개수만큼 모으면 자동으로 특별 축하 쿠폰이 발급됩니다.</p>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">설정 저장</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openStampModal(userId, userName) {
+        document.getElementById('stampUserName').innerText = userName;
+        document.getElementById('stampForm').action = '/grant_stamp/' + userId;
+        openModal('stampModal');
+    }
+    function openCouponModal(userId, userName) {
+        document.getElementById('couponUserName').innerText = userName;
+        document.getElementById('couponForm').action = '/grant_coupon/' + userId;
+        openModal('couponModal');
+    }
+</script>
+{% endblock %}

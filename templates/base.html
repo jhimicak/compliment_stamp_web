@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>칭찬 스탬프</title>
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/variable/pretendardvariable.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="navbar-brand">
+            🌸 참잘했어요 스탬프
+        </a>
+        <div class="nav-links">
+            {% if current_user.is_authenticated %}
+                <span>{{ current_user.name }}님 환영합니다!</span>
+                {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin_dashboard') }}">관리자 대시보드</a>
+                {% else %}
+                    <a href="{{ url_for('user_dashboard') }}">내 스탬프</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="btn btn-outline" style="padding: 0.5rem 1rem; margin-left:1rem;">로그아웃</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">로그인</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 0.5rem 1rem;">회원가입</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+    </script>
+</body>
+</html>
