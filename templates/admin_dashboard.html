@@ -24,7 +24,10 @@
     <div class="glass-card" style="grid-column: 1 / -1;">
         <h3 style="color: var(--primary); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
             사용자 관리
-            <button class="btn btn-outline" onclick="openModal('eventModal')" style="font-size: 0.9rem; padding: 0.5rem 1rem;">자동발급 이벤트 설정</button>
+            <div>
+                <button class="btn btn-primary" onclick="openAddUserModal()" style="font-size: 0.9rem; padding: 0.5rem 1rem; margin-right: 0.5rem;">+ 새 회원 추가</button>
+                <button class="btn btn-outline" onclick="openModal('eventModal')" style="font-size: 0.9rem; padding: 0.5rem 1rem;">자동발급 이벤트 설정</button>
+            </div>
         </h3>
         
         <div style="background: rgba(255,255,255,0.7); border-radius: 16px; padding: 1rem;">
@@ -38,6 +41,10 @@
                         <button class="btn btn-primary" onclick="openStampModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem;">칭찬 도장 부여</button>
                         <button class="btn btn-success" onclick="openCouponModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem;">특별 쿠폰 부여</button>
                         <a href="{{ url_for('admin_user_detail', user_id=item.user.id) }}" class="btn btn-outline" style="padding: 0.5rem 1rem; text-decoration: none;">상세 보기</a>
+                        <button class="btn btn-outline" onclick="openEditUserModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem; color: #6c757d; border-color: #6c757d;">수정</button>
+                        <form method="POST" action="{{ url_for('admin_delete_user', user_id=item.user.id) }}" style="margin: 0;" onsubmit="return confirm('이 사용자와 연관된 모든 스탬프/쿠폰 내역이 삭제됩니다. 정말 삭제하시겠습니까?');">
+                            <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem; background: #ff4d4d; border: none; color: white;">삭제</button>
+                        </form>
                     </div>
                 </div>
             {% else %}
@@ -93,6 +100,48 @@
     </div>
 </div>
 
+<!-- Add User Modal -->
+<div class="modal" id="addUserModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('addUserModal')">&times;</button>
+        <h3 style="color: var(--primary); margin-bottom: 1.5rem;">새 회원 추가 👤</h3>
+        <form method="POST" action="{{ url_for('admin_add_user') }}">
+            <div class="form-group">
+                <label for="add_username">아이디</label>
+                <input type="text" id="add_username" name="username" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="add_password">비밀번호</label>
+                <input type="password" id="add_password" name="password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="add_name">이름 (닉네임)</label>
+                <input type="text" id="add_name" name="name" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">추가하기</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal" id="editUserModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('editUserModal')">&times;</button>
+        <h3 style="color: #6c757d; margin-bottom: 1.5rem;"><span id="editUserNameDisplay"></span>님 정보 수정 ✏️</h3>
+        <form id="editUserForm" method="POST" action="">
+            <div class="form-group">
+                <label for="edit_name">새 이름 (닉네임)</label>
+                <input type="text" id="edit_name" name="name" class="form-control" placeholder="변경할 이름">
+            </div>
+            <div class="form-group">
+                <label for="edit_password">새 비밀번호 (변경 시에만 입력)</label>
+                <input type="password" id="edit_password" name="password" class="form-control" placeholder="변경할 비밀번호">
+            </div>
+            <button type="submit" class="btn btn-outline" style="width: 100%; color: #6c757d; border-color: #6c757d;">수정하기</button>
+        </form>
+    </div>
+</div>
+
 <script>
     function openStampModal(userId, userName) {
         document.getElementById('stampUserName').innerText = userName;
@@ -103,6 +152,16 @@
         document.getElementById('couponUserName').innerText = userName;
         document.getElementById('couponForm').action = '/grant_coupon/' + userId;
         openModal('couponModal');
+    }
+    function openAddUserModal() {
+        openModal('addUserModal');
+    }
+    function openEditUserModal(userId, userName) {
+        document.getElementById('editUserNameDisplay').innerText = userName;
+        document.getElementById('edit_name').value = userName;
+        document.getElementById('edit_password').value = '';
+        document.getElementById('editUserForm').action = '/admin/edit_user/' + userId;
+        openModal('editUserModal');
     }
 </script>
 {% endblock %}

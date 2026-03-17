@@ -11,8 +11,8 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(150), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     
-    stamps_received = db.relationship('Stamp', foreign_keys='Stamp.user_id', backref='receiver', lazy=True)
-    coupons_received = db.relationship('Coupon', foreign_keys='Coupon.user_id', backref='owner', lazy=True)
+    stamps_received = db.relationship('Stamp', foreign_keys='Stamp.user_id', backref='receiver', lazy=True, cascade='all, delete-orphan')
+    coupons_received = db.relationship('Coupon', foreign_keys='Coupon.user_id', backref='owner', lazy=True, cascade='all, delete-orphan')
 
 class Stamp(db.Model):
     id = db.Column(db.Integer, primary_key=True)

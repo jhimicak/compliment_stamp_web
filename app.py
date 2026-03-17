@@ -167,6 +167,72 @@ def delete_coupon(coupon_id):
     flash('쿠폰이 삭제되었습니다.', 'success')
     return redirect(url_for('admin_user_detail', user_id=target_user_id))
 
+@app.route('/admin/add_user', methods=['POST'])
+@login_required
+def admin_add_user():
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+        
+    username = request.form.get('username')
+    password = request.form.get('password')
+    name = request.form.get('name')
+    
+    if User.query.filter_by(username=username).first():
+        flash('이미 존재하는 아이디입니다.', 'error')
+    else:
+        new_user = User(
+            username=username,
+            name=name,
+            password_hash=generate_password_hash(password)
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        flash(f'새 회원({name})이 성공적으로 추가되었습니다!', 'success')
+        
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/edit_user/<int:user_id>', methods=['POST'])
+@login_required
+def admin_edit_user(user_id):
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+        
+    target_user = User.query.get_or_404(user_id)
+    name = request.form.get('name')
+    password = request.form.get('password')
+    
+    if name:
+        target_user.name = name
+    if password:  # Only update password if provided
+        target_user.password_hash = generate_password_hash(password)
+        
+    db.session.commit()
+    flash(f'{target_user.name}님의 정보가 수정되었습니다.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+def admin_delete_user(user_id):
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+        
+    if current_user.id == user_id:
+        flash('자기 자신(관리자)은 삭제할 수 없습니다.', 'error')
+        return redirect(url_for('admin_dashboard'))
+        
+    target_user = User.query.get_or_404(user_id)
+    name = target_user.name
+    
+    # Cascade delete is configured on ORM level, 
+    # but manually deleting stamps and coupons is safer for simple setups.
+    Stamp.query.filter_by(user_id=target_user.id).delete()
+    Coupon.query.filter_by(user_id=target_user.id).delete()
+    
+    db.session.delete(target_user)
+    db.session.commit()
+    flash(f'{name} 회원과 연관된 모든 데이터가 성공적으로 삭제 처리되었습니다.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
 @app.route('/use_coupon/<int:coupon_id>', methods=['POST'])
 @login_required
 def use_coupon(coupon_id):
