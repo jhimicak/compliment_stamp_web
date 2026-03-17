@@ -32,5 +32,5 @@ class Coupon(db.Model):
 
 class EventConfig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    stamps_required_for_coupon = db.Column(db.Integer, default=10)
+    stamps_required_for_coupon = db.Column(db.Integer, default=5)
     is_active = db.Column(db.Boolean, default=True)

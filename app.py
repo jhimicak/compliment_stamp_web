@@ -33,7 +33,7 @@ with app.app_context():
         db.session.add(admin)
         
         # Create default event config
-        event = EventConfig(stamps_required_for_coupon=10, is_active=True)
+        event = EventConfig(stamps_required_for_coupon=5, is_active=True)
         db.session.add(event)
         
         db.session.commit()
