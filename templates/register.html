@@ -5,6 +5,7 @@
     <div class="glass-card" style="width: 100%; max-width: 450px;">
         <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary);">회원가입 🌱</h2>
         <form method="POST" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="username">아이디</label>
                 <input type="text" id="username" name="username" class="form-control" required placeholder="원하시는 아이디를 입력하세요">

@@ -5,6 +5,7 @@
     <div class="glass-card" style="width: 100%; max-width: 400px;">
         <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary);">로그인</h2>
         <form method="POST" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="username">아이디</label>
                 <input type="text" id="username" name="username" class="form-control" required placeholder="아이디를 입력하세요">

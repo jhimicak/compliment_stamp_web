@@ -43,6 +43,7 @@
                         <a href="{{ url_for('admin_user_detail', user_id=item.user.id) }}" class="btn btn-outline" style="padding: 0.5rem 1rem; text-decoration: none;">상세 보기</a>
                         <button class="btn btn-outline" onclick="openEditUserModal({{ item.user.id }}, '{{ item.user.name }}')" style="padding: 0.5rem 1rem; color: #6c757d; border-color: #6c757d;">수정</button>
                         <form method="POST" action="{{ url_for('admin_delete_user', user_id=item.user.id) }}" style="margin: 0;" onsubmit="return confirm('이 사용자와 연관된 모든 스탬프/쿠폰 내역이 삭제됩니다. 정말 삭제하시겠습니까?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem; background: #ff4d4d; border: none; color: white;">삭제</button>
                         </form>
                     </div>
@@ -60,6 +61,7 @@
         <button class="close-modal" onclick="closeModal('stampModal')">&times;</button>
         <h3 style="color: var(--primary); margin-bottom: 1.5rem;"><span id="stampUserName"></span>님에게 칭찬 도장 찍기 🌸</h3>
         <form id="stampForm" method="POST" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="message">칭찬 메시지 (선택)</label>
                 <input type="text" id="message" name="message" class="form-control" placeholder="참 잘했어요!" value="참 잘했어요!">
@@ -75,6 +77,7 @@
         <button class="close-modal" onclick="closeModal('couponModal')">&times;</button>
         <h3 style="color: #52b788; margin-bottom: 1.5rem;"><span id="couponUserName"></span>님에게 특별 쿠폰 발급 🎁</h3>
         <form id="couponForm" method="POST" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="reason">발급 사유 (쿠폰 타이틀)</label>
                 <input type="text" id="reason" name="reason" class="form-control" required placeholder="예: 생일 축하 특별 쿠폰!">
@@ -90,6 +93,7 @@
         <button class="close-modal" onclick="closeModal('eventModal')">&times;</button>
         <h3 style="color: var(--primary); margin-bottom: 1.5rem;">자동 쿠폰 이벤트 설정 ⚙️</h3>
         <form method="POST" action="{{ url_for('update_event') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="required_stamps">쿠폰 자동 발급 기준 (현재: {{ event_config.stamps_required_for_coupon if event_config else 10 }}개)</label>
                 <input type="number" id="required_stamps" name="required_stamps" class="form-control" required min="1" value="{{ event_config.stamps_required_for_coupon if event_config else 10 }}">
@@ -106,6 +110,7 @@
         <button class="close-modal" onclick="closeModal('addUserModal')">&times;</button>
         <h3 style="color: var(--primary); margin-bottom: 1.5rem;">새 회원 추가 👤</h3>
         <form method="POST" action="{{ url_for('admin_add_user') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="add_username">아이디</label>
                 <input type="text" id="add_username" name="username" class="form-control" required>
@@ -129,6 +134,7 @@
         <button class="close-modal" onclick="closeModal('editUserModal')">&times;</button>
         <h3 style="color: #6c757d; margin-bottom: 1.5rem;"><span id="editUserNameDisplay"></span>님 정보 수정 ✏️</h3>
         <form id="editUserForm" method="POST" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="edit_name">새 이름 (닉네임)</label>
                 <input type="text" id="edit_name" name="name" class="form-control" placeholder="변경할 이름">
